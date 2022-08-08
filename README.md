@@ -55,3 +55,21 @@ Verify kubectl
 ``` kubectl get pods --all-namespaces -o wide ``` 
 
 ![image](https://user-images.githubusercontent.com/67600604/183017829-5bf17771-7ac1-44dd-b358-d859cdf14533.png)
+
+we can see that two nodes (ec2) are created with the EKS
+
+![image](https://user-images.githubusercontent.com/67600604/183345106-fae0c127-effc-437c-a975-b9af00f352b1.png)
+
+``` Step 2 - Create Node JS Deployment and Service ```
+
+create three files named as frontend.yml, fronted-svc.yml and backend.yml to setup our nodejs application and put the data in the files as files are attached in the repository
+
+frontend.yml has the nodejs application that is containing all the frontend part and frontend-svc is creating a service for that application , backend.yml is creating the database for having the images and storage for the application
+
+now, check the deployments using  the kubectl get deploy
+
+![image](https://user-images.githubusercontent.com/67600604/183345827-55defc63-cc53-4488-92a5-f277bb058475.png)
+
+``` Step 3 - Create Ingress Controller and Access Above created deployment using Ingress and point it to the domain (application should be accessible through a browser) ```
+
+creating the Ingress file - create a ingress file 
