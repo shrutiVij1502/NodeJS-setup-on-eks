@@ -72,4 +72,104 @@ now, check the deployments using  the kubectl get deploy
 
 ``` Step 3 - Create Ingress Controller and Access Above created deployment using Ingress and point it to the domain (application should be accessible through a browser) ```
 
-creating the Ingress file - create a ingress file 
+creating the Ingress file - create a ingress file , but before that , firstky we have to take a domain, I have taken the domain from the freenom.com and configured that domain from the Route53 using the nameservers and mentioned that domain in the ingress file using 
+
+create the file using - ``` kubectl create -f ingress.yml ```
+
+and check using the ``` kubectl get ingress ```
+
+![image](https://user-images.githubusercontent.com/67600604/183346750-e585a57f-f9fa-4836-84e7-013659cce240.png)
+
+you can check the ingress loadbalancer using ``` kubectl get svc```
+
+and assign that LB address in Route53 DNS to route from the website to the domain and 
+
+![image](https://user-images.githubusercontent.com/67600604/183349198-3262c1d5-c445-44ff-87c0-d399e873b057.png)
+
+now create hit that domain that we have mentioned in the ingress file - in my case , it is page9.ml
+
+``` Step 4 - HPA & Probes ```
+
+for HPA , we have two methods to create the HPA, one is the deploying the yaml file  and the other one is to just run a command for the HPA 
+
+``` oc autoscale dc/database --min 1 --max 5 --cpu-percent = 75 ```
+ 
+both works the same 
+
+add the block in the deployment file in the container column 
+
+![image](https://user-images.githubusercontent.com/67600604/183376266-1aacec1c-aa61-40a0-b611-4d2aec91828a.png)
+
+if you want to create with the yml file , refer this article - https://www.tutorialspoint.com/openshift/openshift_application_scaling.htm
+
+now , you can check using the ```kubectl get hpa``` command
+
+for more for HPA - https://drive.google.com/file/d/10Kf0oimf9YjtwPTLAFcsWZbh3aYqm3rq/view?usp=sharing
+
+![image](https://user-images.githubusercontent.com/67600604/183364607-305648ac-0873-487a-ac87-5cb60943afbc.png)
+
+for probes , add a column of Liveness in the deployemnet part - https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+
+![image](https://user-images.githubusercontent.com/67600604/183372878-bbe499f6-39c8-464f-8571-481be547e938.png)
+
+```Step 5 SSL certificate ```
+
+for this , we need to install some dependencies using the helm 
+
+```
+kubectl create namespace cert-manager
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.2.0 --set installCRDs=true
+nano production_issuer.yaml
+
+add the lines 
+
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    # Email address used for ACME registration
+    email: ""ur_email_address""
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      # Name of a secret used to store the ACME account private key
+      name: letsencrypt-prod-private-key
+    # Add a single challenge solver, HTTP01 using nginx
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+```
+add the host in the file with the host and cluster issuer
+
+![image](https://user-images.githubusercontent.com/67600604/183375453-34384ab3-b028-45e8-b721-9965cf204435.png)
+![image](https://user-images.githubusercontent.com/67600604/183377871-47323c74-9842-490f-89a9-659863b18ba4.png)
+
+this is created with the file ci.yml
+
+
+``` Step 6 - kustomization```
+
+Kustomize relies on the following system of configuration management layering to achieve reusability:
+
+Base Layer
+Specifies the most common resources
+Patch Layers
+Specifies use case specific resources
+
+we can create a template as per  our requirements and can change as per we need the changes
+
+like I have the deployment , svc and HPA file in the base folder and I want that same for the another folder but want HPA to be diffrent .so , I will take the other file as template from the base folder and patch the new HPA file with it 
+
+In overlays folder , I am having my template Kustomization file 
+
+![image](https://user-images.githubusercontent.com/67600604/183380165-2e1b83b9-d762-4277-978b-347c9c5de193.png)
+
+and in base , I have the original ones 
+
+![image](https://user-images.githubusercontent.com/67600604/183381868-7d319dfc-6c8c-4615-a46f-bc3539f9c052.png)
+
+
