@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: knote
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: knote
+  template:
+    metadata:
+      labels:
+        app: knote
+    spec:
+      containers:
+       - name: app
+         image: learnk8s/knote-js:1.0.0
+         ports:
+           - containerPort: 3000
+         resources:
+             limits:
+               cpu: 500m
+             requests:
+               cpu: 200m
+         env:
+           - name: MONGO_URL
+             value: mongodb://mongo:27017/dev
