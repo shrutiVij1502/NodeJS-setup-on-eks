@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/acme-challenge-type: http01
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+  creationTimestamp: "2022-08-01T13:20:02Z"
+  generation: 4
+  name: knot-ing
+  namespace: default
+  resourceVersion: "1154734"
+  uid: 2265f0d4-edea-433a-b514-af81a8aa6078
+spec:
+  rules:
+  - host: page9.ml
+    http:
+      paths:
+      - backend:
+          service:
+            name: page9
+            port:
+              number: 3000
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - page9.ml
+    secretName: echo-tls
+status:
+  loadBalancer:
+    ingress:
+    - hostname: aabd681c55a7e4a45b265e0b56ed6951-1033752377.ap-south-1.elb.amazonaws.com
