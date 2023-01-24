@@ -8,6 +8,8 @@
 
 ``` Step 1 - Setup AWS-managed Kubernetes Server ```
 
+https://www.youtube.com/watch?v=1O-I7NtwCeE
+
 Launch AWS CloudShell 
 
 ![image](https://user-images.githubusercontent.com/67600604/183015507-63ab72d2-7233-4357-87d8-d5528d365b35.png)
